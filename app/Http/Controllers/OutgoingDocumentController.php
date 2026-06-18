@@ -51,28 +51,8 @@ class OutgoingDocumentController extends Controller
 
         // Generate Nomor Referensi Otomatis untuk Surat Keluar
         // Format: ARSIP/SK/{BulanRomawi}/{Tahun}/{AutoIncrement}
-        // Berdasarkan Tanggal Input Sistem
-        $now = now();
-        $year = $now->year;
-        $month = $now->month;
-        $romawi = [1=>'I', 2=>'II', 3=>'III', 4=>'IV', 5=>'V', 6=>'VI', 7=>'VII', 8=>'VIII', 9=>'IX', 10=>'X', 11=>'XI', 12=>'XII'];
-        
-        $latestDoc = Document::where('type', 'outgoing')
-                             ->whereYear('created_at', $year)
-                             ->withTrashed()
-                             ->orderBy('id', 'desc')
-                             ->first();
-                             
-        $nextNumber = 1;
-        if ($latestDoc && $latestDoc->reference_number) {
-            $parts = explode('/', $latestDoc->reference_number);
-            $lastNum = (int) end($parts);
-            if ($lastNum > 0) {
-                $nextNumber = $lastNum + 1;
-            }
-        }
-        
-        $referenceNumber = 'ARSIP/SK/' . $romawi[$month] . '/' . $year . '/' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        // Catatan: Logika generate dipindahkan ke Document Model (Model Event)
+        $referenceNumber = null;
 
         $filePath = null;
         if ($request->hasFile('file_document')) {
@@ -81,7 +61,7 @@ class OutgoingDocumentController extends Controller
             $filePath = $file->storeAs('documents', $filename, 'public');
         }
 
-        Document::create([
+        $document = Document::create([
             'type' => 'outgoing',
             'reference_number' => $referenceNumber,
             'document_number' => $validated['document_number'],
@@ -93,7 +73,7 @@ class OutgoingDocumentController extends Controller
             'created_by' => auth()->id(),
         ]);
 
-        return redirect()->back()->with('message', 'Surat Keluar berhasil ditambahkan dengan No Referensi: ' . $referenceNumber);
+        return redirect()->back()->with('message', 'Surat Keluar berhasil ditambahkan dengan No Referensi: ' . $document->reference_number);
     }
 
     /**
