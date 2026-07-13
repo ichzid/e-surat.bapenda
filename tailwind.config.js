@@ -8,7 +8,6 @@ export default {
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
-        './resources/js/**/*.vue',
     ],
 
     theme: {
@@ -40,8 +39,8 @@ export default {
                 }
             },
             fontFamily: {
-                sans: ['DM Sans', ...defaultTheme.fontFamily.sans],
-                display: ['Plus Jakarta Sans', ...defaultTheme.fontFamily.sans],
+                sans: ['Outfit', ...defaultTheme.fontFamily.sans],
+                display: ['Outfit', ...defaultTheme.fontFamily.sans],
                 mono: ['Fira Code', ...defaultTheme.fontFamily.mono],
             },
             boxShadow: {

@@ -106,7 +106,7 @@ class MigrateLegacyData extends Command
         foreach ($legacyUsers as $user) {
             $role = 'user';
             if ($user->id_level_user == 1) {
-                $role = 'admin';
+                $role = 'administrator';
             }
             
             DB::table('users')->updateOrInsert(

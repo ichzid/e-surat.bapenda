@@ -28,11 +28,11 @@ class DocumentsExport implements FromCollection, WithHeadings, WithMapping, With
         $query = Document::query();
 
         if ($this->year != 'all') {
-            $query->whereYear('document_date', $this->year);
+            $query->whereYear('created_at', $this->year);
         }
 
         if ($this->month != 'all') {
-            $query->whereMonth('document_date', $this->month);
+            $query->whereMonth('created_at', $this->month);
         }
 
         if ($this->type != 'all') {

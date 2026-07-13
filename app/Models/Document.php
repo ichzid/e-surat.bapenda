@@ -22,6 +22,16 @@ class Document extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function dispositions()
+    {
+        return $this->hasMany(Disposition::class);
+    }
+
     protected static function boot()
     {
         parent::boot();

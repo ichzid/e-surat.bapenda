@@ -17,6 +17,26 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(Document::class, 'created_by');
+    }
+
+    public function dispositions()
+    {
+        return $this->hasMany(Disposition::class, 'created_by');
+    }
+
+    public function isSekretariatOperator(): bool
+    {
+        return $this->role === 'operator' && $this->department?->name === 'SEKRETARIAT';
+    }
+
     /**
      * Get the attributes that should be cast.
      *

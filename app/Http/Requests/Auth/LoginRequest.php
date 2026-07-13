@@ -46,7 +46,8 @@ class LoginRequest extends FormRequest
 
         if ($user && md5($this->password) === $user->getAuthPassword()) {
             // Jika cocok dengan MD5 lama, ubah ke Bcrypt
-            $user->password = \Illuminate\Support\Facades\Hash::make($this->password);
+            // Password akan di-hash otomatis oleh Eloquent cast 'hashed' di User model
+            $user->password = $this->password;
             $user->save();
         }
 

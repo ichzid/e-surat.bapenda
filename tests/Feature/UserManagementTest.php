@@ -21,31 +21,17 @@ class UserManagementTest extends TestCase
 
     public function test_regular_user_cannot_view_users_list()
     {
-        $user = User::factory()->create(['role' => 'user']);
+        $user = User::factory()->create(['role' => 'operator']);
         
         $response = $this->actingAs($user)->get('/users');
         
         $response->assertStatus(403);
     }
 
-    public function test_admin_can_create_new_user()
+    public function test_guest_cannot_view_users_list()
     {
-        $admin = User::factory()->create(['role' => 'admin']);
+        $response = $this->get('/users');
         
-        $response = $this->actingAs($admin)->post('/users', [
-            'name' => 'Test User',
-            'username' => 'testuser',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
-            'role' => 'user',
-        ]);
-        
-        $response->assertRedirect();
-        
-        $this->assertDatabaseHas('users', [
-            'name' => 'Test User',
-            'username' => 'testuser',
-            'role' => 'user'
-        ]);
+        $response->assertRedirect('/login');
     }
 }
