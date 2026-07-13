@@ -192,7 +192,17 @@ class Dispositions extends Component
             $rules["instructions.$departmentId"] = 'required|string';
         }
 
-        $validated = $this->validate($rules);
+        $validated = $this->validate($rules, [
+            'selectedDocumentId.required' => 'Surat wajib dipilih.',
+            'selectedDocumentId.exists' => 'Surat yang dipilih tidak valid.',
+            'departmentIds.required' => 'Bidang tujuan wajib dipilih.',
+            'departmentIds.array' => 'Format bidang tujuan tidak valid.',
+            'departmentIds.min' => 'Pilih minimal satu bidang tujuan.',
+            'departmentIds.*.exists' => 'Bidang tujuan yang dipilih tidak valid.',
+            'instructions.*.required' => 'Instruksi wajib dipilih.',
+            'instructions.*.string' => 'Instruksi harus berupa teks.',
+            'notes.*.string' => 'Catatan harus berupa teks.',
+        ]);
 
         DB::transaction(function () use ($validated) {
             $document = Document::where('type', 'incoming')->findOrFail($validated['selectedDocumentId']);
@@ -230,6 +240,11 @@ class Dispositions extends Component
         $this->validate([
             "followUpStatus.$id" => 'required|string|max:255',
             "followUpNote.$id" => 'nullable|string',
+        ], [
+            "followUpStatus.$id.required" => 'Status tindak lanjut wajib dipilih.',
+            "followUpStatus.$id.string" => 'Status tindak lanjut harus berupa teks.',
+            "followUpStatus.$id.max" => 'Status tindak lanjut maksimal 255 karakter.',
+            "followUpNote.$id.string" => 'Keterangan tindak lanjut harus berupa teks.',
         ]);
 
         $disposition->update([

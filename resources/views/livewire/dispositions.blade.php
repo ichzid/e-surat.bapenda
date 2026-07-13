@@ -322,6 +322,13 @@
                             <div class="text-[10px] text-slate-400 font-mono mt-0.5 mb-1">Ref: {{ $disposition->document->reference_number }}</div>
                             @endif
                             <div class="text-xs text-slate-500 line-clamp-2 mt-0.5" title="{{ $disposition->document->subject }}">{{ $disposition->document->subject }}</div>
+                            @if($isOperator)
+                            <div class="mt-2 space-y-0.5 text-[11px] text-slate-500">
+                                <div>Pengirim: <span class="font-medium text-navy">{{ $disposition->document->sender_or_receiver ?: '-' }}</span></div>
+                                <div>Tgl Surat: <span class="font-medium text-navy">{{ $disposition->document->document_date ? $disposition->document->document_date->format('d M Y') : '-' }}</span></div>
+                                <div>Diterima: <span class="font-medium text-navy">{{ $disposition->document->received_date ? $disposition->document->received_date->format('d M Y') : '-' }}</span></div>
+                            </div>
+                            @endif
                             <div class="mt-2 flex items-center gap-2">
                                 @if($disposition->document->file_path)
                                 <a href="{{ Storage::url($disposition->document->file_path) }}" target="_blank" class="text-xs text-sage font-medium hover:underline">Lihat file</a>
@@ -350,7 +357,9 @@
                                 <option value="selesai">Selesai</option>
                                 <option value="arsip">Arsip</option>
                             </select>
+                            @error('followUpStatus.' . $disposition->id) <span class="text-xs text-red-500 -mt-1 mb-2 block">{{ $message }}</span> @enderror
                             <textarea wire:model="followUpNote.{{ $disposition->id }}" rows="2" placeholder="Keterangan tindak lanjut" class="block w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:border-sage focus:ring-sage"></textarea>
+                            @error('followUpNote.' . $disposition->id) <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                             <button wire:click="saveFollowUp({{ $disposition->id }})" class="mt-2 px-3 py-1.5 text-xs font-bold text-white bg-sage hover:bg-sage/90 rounded-lg transition-colors">Simpan Tindak Lanjut</button>
                             @else
                             @if($disposition->follow_up_status)
