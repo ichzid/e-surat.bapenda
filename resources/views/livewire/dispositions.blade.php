@@ -296,6 +296,10 @@
                 <thead>
                     <tr class="border-b border-slate-200 bg-slate-50">
                         <th class="py-3 px-4 lg:px-6 text-xs font-bold text-navy uppercase tracking-wider w-1/3">Info Surat</th>
+                        @if($isOperator)
+                        <th class="py-3 px-4 lg:px-6 text-xs font-bold text-navy uppercase tracking-wider w-1/5">Pengirim</th>
+                        <th class="py-3 px-4 lg:px-6 text-xs font-bold text-navy uppercase tracking-wider w-1/5">Tanggal</th>
+                        @endif
                         <th class="py-3 px-4 lg:px-6 text-xs font-bold text-navy uppercase tracking-wider w-1/4">
                             @if($isKepalaBadan)
                                 Tujuan Disposisi
@@ -322,13 +326,6 @@
                             <div class="text-[10px] text-slate-400 font-mono mt-0.5 mb-1">Ref: {{ $disposition->document->reference_number }}</div>
                             @endif
                             <div class="text-xs text-slate-500 line-clamp-2 mt-0.5" title="{{ $disposition->document->subject }}">{{ $disposition->document->subject }}</div>
-                            @if($isOperator)
-                            <div class="mt-2 space-y-0.5 text-[11px] text-slate-500">
-                                <div>Pengirim: <span class="font-medium text-navy">{{ $disposition->document->sender_or_receiver ?: '-' }}</span></div>
-                                <div>Tgl Surat: <span class="font-medium text-navy">{{ $disposition->document->document_date ? $disposition->document->document_date->format('d M Y') : '-' }}</span></div>
-                                <div>Diterima: <span class="font-medium text-navy">{{ $disposition->document->received_date ? $disposition->document->received_date->format('d M Y') : '-' }}</span></div>
-                            </div>
-                            @endif
                             <div class="mt-2 flex items-center gap-2">
                                 @if($disposition->document->file_path)
                                 <a href="{{ Storage::url($disposition->document->file_path) }}" target="_blank" class="text-xs text-sage font-medium hover:underline">Lihat file</a>
@@ -338,6 +335,17 @@
                                 </span>
                             </div>
                         </td>
+                        @if($isOperator)
+                        <td class="py-3 px-4 lg:px-6">
+                            <span class="text-sm font-medium text-navy">{{ $disposition->document->sender_or_receiver ?: '-' }}</span>
+                        </td>
+                        <td class="py-3 px-4 lg:px-6">
+                            <div class="text-xs">
+                                <span class="text-slate-500 block">Tgl Surat: <span class="font-medium text-navy">{{ $disposition->document->document_date ? $disposition->document->document_date->format('d M Y') : '-' }}</span></span>
+                                <span class="text-slate-500 block mt-0.5">Diterima: <span class="font-medium text-navy">{{ $disposition->document->received_date ? $disposition->document->received_date->format('d M Y') : '-' }}</span></span>
+                            </div>
+                        </td>
+                        @endif
                         <td class="py-3 px-4 lg:px-6 text-sm text-slate-600">
                             @if($isKepalaBadan)
                                 {{ $disposition->department?->name ?? '-' }}
@@ -375,7 +383,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="py-12 text-center text-sm text-slate-500">
+                        <td colspan="{{ $isOperator ? 6 : 4 }}" class="py-12 text-center text-sm text-slate-500">
                             <div class="flex flex-col items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-10 h-10 text-slate-300"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm0 5.25h.007v.008H3.75V12Zm0 5.25h.007v.008H3.75v-.008Z"/></svg>
                                 <span>{{ $isSecretary ? 'Belum ada riwayat disposisi.' : 'Tidak ada disposisi masuk.' }}</span>
