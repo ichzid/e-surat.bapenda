@@ -3,7 +3,19 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'Dashboard' }} | E-Surat Bapenda</title>
+    @php
+        $pageTitle = $title ?? match (true) {
+            request()->routeIs('dashboard') => 'Dashboard',
+            request()->routeIs('incoming.*') => 'Surat Masuk',
+            request()->routeIs('outgoing.*') => 'Surat Keluar',
+            request()->routeIs('dispositions.*') => 'Disposisi',
+            request()->routeIs('reports.*') => 'Laporan',
+            request()->routeIs('users.*') => 'Master User',
+            request()->routeIs('profile.*') => 'Profil Akun',
+            default => 'Dashboard',
+        };
+    @endphp
+    <title>{{ $pageTitle }} | E-Surat Bapenda</title>
     <link rel="icon" type="image/png" href="/logo/logo.png">
     <link rel="shortcut icon" type="image/png" href="/logo/logo.png">
     <link rel="apple-touch-icon" href="/logo/logo.png">

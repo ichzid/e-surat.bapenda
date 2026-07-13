@@ -1,5 +1,5 @@
 <x-layouts.guest>
-    <x-slot:title>Masuk - E-Surat Bapenda</x-slot:title>
+    <x-slot:title>Login</x-slot:title>
 
     <div class="mb-8">
         <h2 class="font-display text-2xl font-bold text-navy">Masuk ke Akun</h2>
