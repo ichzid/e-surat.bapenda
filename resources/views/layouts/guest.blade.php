@@ -8,7 +8,7 @@
     <link rel="shortcut icon" type="image/png" href="/logo/logo.png">
     <link rel="apple-touch-icon" href="/logo/logo.png">
 
-    @vite(['resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
 <body class="font-sans antialiased">

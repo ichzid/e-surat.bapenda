@@ -1,1 +1,1 @@
-import '../css/app.css';
+// JavaScript entrypoint for Vite.
