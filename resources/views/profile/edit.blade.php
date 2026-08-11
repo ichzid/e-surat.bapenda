@@ -27,6 +27,7 @@
                             type="text"
                             value="{{ old('name', auth()->user()->name) }}"
                             required
+                            autofocus
                             class="block w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-navy placeholder-slate-400 shadow-sm transition-all duration-200 focus:border-sage focus:ring-2 focus:ring-sage/20 focus:outline-none @error('name') border-status-error ring-2 ring-status-error/20 @enderror"
                         />
                         @error('name')

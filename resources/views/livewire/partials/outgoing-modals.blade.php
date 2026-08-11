@@ -54,7 +54,7 @@
                 @endif
 
                 <label class="block text-xs font-bold text-slate-secondary uppercase tracking-wider mb-1">
-                    {{ $showEditModal ? 'Upload File Pengganti (Opsional)' : 'File Surat (PDF, max 2MB)' }}
+                    {{ $showEditModal ? 'Upload File Pengganti (Opsional)' : 'File Surat (PDF, max 3MB)' }}
                 </label>
                 <input type="file" wire:model="file_document" accept=".pdf" class="block w-full text-sm text-slate-secondary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-sage/10 file:text-sage hover:file:bg-sage/20">
                 @if($showEditModal && !$file_document)<p class="text-xs text-slate-400 mt-1">Biarkan kosong jika tidak ingin mengganti file lama.</p>@endif

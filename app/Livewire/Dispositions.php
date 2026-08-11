@@ -25,6 +25,7 @@ class Dispositions extends Component
     public $departmentIds = [];
     public $instructions = [];
     public $notes = [];
+    public bool $sendToKepalaBadan = false;
 
     // Tindak lanjut operator bidang
     public $followUpStatus = [];
@@ -106,9 +107,9 @@ class Dispositions extends Component
                 $this->followUpNote[$disposition->id] ??= $disposition->follow_up_note;
             }
         } else {
-            // Sekretaris/Admin/Kepala Badan: tampilkan semua disposisi
             $dispositions = Disposition::query()
                 ->with(['document', 'department', 'creator'])
+                ->when($isKepalaBadan, fn ($query) => $query->where('target_role', 'kepala_badan'))
                 ->when($this->dispositionSearch, function ($query) {
                     $query->where(function ($q) {
                         $q->where('note', 'like', '%' . $this->dispositionSearch . '%')
@@ -186,6 +187,7 @@ class Dispositions extends Component
             'departmentIds.*' => 'exists:departments,id',
             'notes' => 'nullable|array',
             'notes.*' => 'nullable|string',
+            'sendToKepalaBadan' => 'boolean',
         ];
 
         foreach ($this->departmentIds as $departmentId) {
@@ -219,6 +221,17 @@ class Dispositions extends Component
                 ], [
                     'created_by' => auth()->id(),
                     'note' => $dispositionNote,
+                ]);
+            }
+
+            if ($validated['sendToKepalaBadan']) {
+                Disposition::firstOrCreate([
+                    'document_id' => $document->id,
+                    'department_id' => null,
+                    'target_role' => 'kepala_badan',
+                ], [
+                    'created_by' => auth()->id(),
+                    'note' => 'Untuk diketahui oleh Kepala Badan.',
                 ]);
             }
 

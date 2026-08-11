@@ -63,7 +63,7 @@ class OutgoingDocuments extends Component
             'received_date' => 'required|date',
             'sender_or_receiver' => 'required|string|max:255',
             'subject' => 'required|string|max:255',
-            'file_document' => ($this->showEditModal ? 'nullable' : 'required') . '|file|mimes:pdf|max:2048',
+            'file_document' => ($this->showEditModal ? 'nullable' : 'required') . '|file|mimes:pdf|max:3072',
             'reference_number' => 'nullable|string|max:255',
         ];
     }
