@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
     {
         $departments = collect([
             'SEKRETARIAT',
+            'KASUBBAG UMUM',
             'BIDANG PERENCANAAN DAN PENGEMBANGAN',
             'BIDANG PELAYANAN DAN PENETAPAN',
             'BIDANG PENDATAAN DAN PENILAIAN',
@@ -44,6 +45,13 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // ========== OPERATOR BIDANG LAIN ==========
+        User::updateOrCreate(['username' => 'kasubbag_umum'], [
+            'name'          => 'Kasubbag Umum',
+            'password'      => Hash::make('123456'),
+            'role'          => 'operator',
+            'department_id' => $departments['KASUBBAG UMUM']->id,
+        ]);
+
         $operatorPerencanaan = User::updateOrCreate(['username' => 'op_perencanaan'], [
             'name'          => 'Operator Perencanaan & Pengembangan',
             'password'      => Hash::make('123456'),

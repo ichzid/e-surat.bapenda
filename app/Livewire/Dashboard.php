@@ -59,8 +59,14 @@ class Dashboard extends Component
                 ->orderBy('id', 'desc')
                 ->take(10)
                 ->get();
-        } elseif ($isSekretaris || $isKepalaBadan) {
+        } elseif ($isSekretaris) {
             $recentItems = Disposition::with(['document', 'department', 'creator'])
+                ->orderBy('id', 'desc')
+                ->take(10)
+                ->get();
+        } elseif ($isKepalaBadan) {
+            $recentItems = Disposition::with(['document', 'department', 'creator'])
+                ->where('target_role', 'kepala_badan')
                 ->orderBy('id', 'desc')
                 ->take(10)
                 ->get();

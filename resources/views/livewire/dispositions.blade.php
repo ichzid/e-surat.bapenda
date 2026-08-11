@@ -192,6 +192,14 @@
                 @endif
                 @endif
 
+                <label class="flex items-start gap-3 p-4 rounded-xl border cursor-pointer {{ $sendToKepalaBadan ? 'border-sage/30 bg-sage/[0.04]' : 'border-slate-200 bg-white hover:border-slate-300' }}">
+                    <input type="checkbox" wire:model.live="sendToKepalaBadan" class="mt-0.5 rounded border-slate-300 text-sage focus:ring-sage">
+                    <span>
+                        <span class="block text-sm font-bold text-navy">Kirim ke Kepala Badan</span>
+                        <span class="block text-xs text-slate-500 mt-0.5">Centang jika disposisi ini perlu diketahui oleh Kepala Badan.</span>
+                    </span>
+                </label>
+
                 <div>
                     <label class="block text-xs font-bold text-slate-secondary uppercase tracking-wider mb-2">Bidang Tujuan <span class="text-red-400">*</span></label>
                     <div class="space-y-1.5">
@@ -265,7 +273,7 @@
                 @elseif($isOperator)
                     Disposisi yang sudah ditindaklanjuti oleh bidang Anda.
                 @elseif($isKepalaBadan)
-                    Semua disposisi surat yang telah dibuat.
+                    Disposisi surat yang secara khusus dikirim kepada Kepala Badan.
                 @else
                     Daftar surat yang sudah didisposisikan beserta tindak lanjutnya.
                 @endif
@@ -296,10 +304,6 @@
                 <thead>
                     <tr class="border-b border-slate-200 bg-slate-50">
                         <th class="py-3 px-4 lg:px-6 text-xs font-bold text-navy uppercase tracking-wider w-1/3">Info Surat</th>
-                        @if($isOperator)
-                        <th class="py-3 px-4 lg:px-6 text-xs font-bold text-navy uppercase tracking-wider w-1/5">Pengirim</th>
-                        <th class="py-3 px-4 lg:px-6 text-xs font-bold text-navy uppercase tracking-wider w-1/5">Tanggal</th>
-                        @endif
                         <th class="py-3 px-4 lg:px-6 text-xs font-bold text-navy uppercase tracking-wider w-1/4">
                             @if($isKepalaBadan)
                                 Tujuan Disposisi
@@ -335,20 +339,9 @@
                                 </span>
                             </div>
                         </td>
-                        @if($isOperator)
-                        <td class="py-3 px-4 lg:px-6">
-                            <span class="text-sm font-medium text-navy">{{ $disposition->document->sender_or_receiver ?: '-' }}</span>
-                        </td>
-                        <td class="py-3 px-4 lg:px-6">
-                            <div class="text-xs">
-                                <span class="text-slate-500 block">Tgl Surat: <span class="font-medium text-navy">{{ $disposition->document->document_date ? $disposition->document->document_date->format('d M Y') : '-' }}</span></span>
-                                <span class="text-slate-500 block mt-0.5">Diterima: <span class="font-medium text-navy">{{ $disposition->document->received_date ? $disposition->document->received_date->format('d M Y') : '-' }}</span></span>
-                            </div>
-                        </td>
-                        @endif
                         <td class="py-3 px-4 lg:px-6 text-sm text-slate-600">
                             @if($isKepalaBadan)
-                                {{ $disposition->department?->name ?? '-' }}
+                                {{ $disposition->creator?->name ?? '-' }}
                             @else
                                 {{ $isSecretary ? ($disposition->target_role === 'kepala_badan' ? 'Kepala Badan' : $disposition->department?->name) : $disposition->creator?->name }}
                             @endif
@@ -365,9 +358,7 @@
                                 <option value="selesai">Selesai</option>
                                 <option value="arsip">Arsip</option>
                             </select>
-                            @error('followUpStatus.' . $disposition->id) <span class="text-xs text-red-500 -mt-1 mb-2 block">{{ $message }}</span> @enderror
                             <textarea wire:model="followUpNote.{{ $disposition->id }}" rows="2" placeholder="Keterangan tindak lanjut" class="block w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:border-sage focus:ring-sage"></textarea>
-                            @error('followUpNote.' . $disposition->id) <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                             <button wire:click="saveFollowUp({{ $disposition->id }})" class="mt-2 px-3 py-1.5 text-xs font-bold text-white bg-sage hover:bg-sage/90 rounded-lg transition-colors">Simpan Tindak Lanjut</button>
                             @else
                             @if($disposition->follow_up_status)
@@ -383,7 +374,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="{{ $isOperator ? 6 : 4 }}" class="py-12 text-center text-sm text-slate-500">
+                        <td colspan="4" class="py-12 text-center text-sm text-slate-500">
                             <div class="flex flex-col items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-10 h-10 text-slate-300"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm0 5.25h.007v.008H3.75V12Zm0 5.25h.007v.008H3.75v-.008Z"/></svg>
                                 <span>{{ $isSecretary ? 'Belum ada riwayat disposisi.' : 'Tidak ada disposisi masuk.' }}</span>

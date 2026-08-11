@@ -138,7 +138,7 @@
                             @endif
                         </td>
                         <td class="px-5 lg:px-6 py-3.5 text-navy font-medium max-w-[200px] truncate">{{ $d->document->subject ?? '-' }}</td>
-                        <td class="px-5 lg:px-6 py-3.5 text-slate-secondary hidden sm:table-cell">{{ $d->department?->name ?? '-' }}</td>
+                        <td class="px-5 lg:px-6 py-3.5 text-slate-secondary hidden sm:table-cell">{{ $isKepalaBadan ? ($d->creator?->name ?? '-') : ($d->department?->name ?? '-') }}</td>
                         <td class="px-5 lg:px-6 py-3.5 hidden md:table-cell">
                             @if($d->follow_up_status)
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-status-info/10 text-status-info">{{ str_replace('_', ' ', $d->follow_up_status) }}</span>

@@ -150,7 +150,7 @@ return [
     'string'      => ':attribute harus berupa string.',
     'timezone'    => ':attribute harus berupa zona waktu yang valid.',
     'unique'      => ':attribute sudah digunakan.',
-    'uploaded'    => ':attribute gagal diunggah (kemungkinan file terlalu besar, maksimal 2MB).',
+    'uploaded'    => ':attribute gagal diunggah (kemungkinan file terlalu besar, maksimal 3MB).',
     'uppercase'   => ':attribute harus berupa huruf besar.',
     'url'         => 'Format :attribute tidak valid.',
     'ulid'        => ':attribute harus berupa ULID yang valid.',

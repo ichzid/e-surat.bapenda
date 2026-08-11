@@ -139,7 +139,7 @@ class IncomingDocuments extends Component
             'sender_or_receiver' => 'required|string|max:255',
             'subject' => 'required|string',
             'requires_disposition' => 'required|boolean',
-            'file_document' => 'nullable|file|mimes:pdf|max:2048',
+            'file_document' => 'nullable|file|mimes:pdf|max:3072',
         ]);
 
         $document = Document::where('type', 'incoming')->findOrFail($this->editId);
