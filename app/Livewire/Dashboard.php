@@ -21,13 +21,23 @@ class Dashboard extends Component
 
         $stats = [];
 
-        if ($isAdmin || $isSekretariatOp || $isKepalaBadan) {
+        if ($isAdmin || $isSekretariatOp) {
             $stats['total_incoming'] = Document::where('type', 'incoming')->count();
             $stats['total_outgoing'] = Document::where('type', 'outgoing')->count();
             $stats['pending_disposition'] = Document::where('type', 'incoming')
                 ->where('status', 'menunggu_disposisi')->count();
             $stats['done_disposition'] = Document::where('type', 'incoming')
                 ->where('status', 'sudah_disposisi')->count();
+        }
+
+        if ($isKepalaBadan) {
+            $stats['disposisi_baru'] = Disposition::where('target_role', 'kepala_badan')
+                ->whereNull('follow_up_status')->count();
+            $stats['disposisi_proses'] = Disposition::where('target_role', 'kepala_badan')
+                ->whereNotNull('follow_up_status')
+                ->where('follow_up_status', '!=', 'selesai')->count();
+            $stats['disposisi_selesai'] = Disposition::where('target_role', 'kepala_badan')
+                ->where('follow_up_status', 'selesai')->count();
         }
 
         if ($isSekretaris) {

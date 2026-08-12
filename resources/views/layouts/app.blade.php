@@ -54,20 +54,6 @@
                 $canSeeOutgoing = $isAdministrator || $isOperatorSekretariat;
                 $canSeeReports = $isAdministrator || $isOperatorSekretariat || $isKepalaBadan;
                 $canSeeUsers = $isAdministrator;
-
-                // Badge counters
-                $dispositionBadge = 0;
-                if ($isSekretaris || $isAdministrator || $isOperatorSekretariat) {
-                    $dispositionBadge = \App\Models\Document::where('type', 'incoming')
-                        ->where('status', 'menunggu_disposisi')->count();
-                } elseif ($isOperatorBidang) {
-                    $dispositionBadge = \App\Models\Disposition::where('department_id', $user->department_id)
-                        ->where('target_role', 'department')
-                        ->where(function ($q) {
-                            $q->whereNull('follow_up_status')
-                              ->orWhere('follow_up_status', '!=', 'selesai');
-                        })->count();
-                }
             @endphp
             <nav class="flex-1 px-4 py-6 overflow-y-auto">
                 <!-- Menu Utama -->

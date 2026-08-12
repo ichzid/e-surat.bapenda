@@ -22,7 +22,7 @@
         </nav>
     </div>
 
-    @elseif($isOperator)
+    @elseif($isOperator || $isKepalaBadan)
     <div class="mb-8">
         <nav class="inline-flex rounded-2xl border border-slate-200 bg-white p-1 shadow-sm" aria-label="Tabs">
             <button wire:click="setActiveTab('baru')" class="relative inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded-xl transition-all {{ $activeTab === 'baru' ? 'bg-sage text-white shadow-sm' : 'text-slate-secondary hover:text-navy' }}">
@@ -192,17 +192,13 @@
                 @endif
                 @endif
 
-                <label class="flex items-start gap-3 p-4 rounded-xl border cursor-pointer {{ $sendToKepalaBadan ? 'border-sage/30 bg-sage/[0.04]' : 'border-slate-200 bg-white hover:border-slate-300' }}">
-                    <input type="checkbox" wire:model.live="sendToKepalaBadan" class="mt-0.5 rounded border-slate-300 text-sage focus:ring-sage">
-                    <span>
-                        <span class="block text-sm font-bold text-navy">Kirim ke Kepala Badan</span>
-                        <span class="block text-xs text-slate-500 mt-0.5">Centang jika disposisi ini perlu diketahui oleh Kepala Badan.</span>
-                    </span>
-                </label>
-
                 <div>
                     <label class="block text-xs font-bold text-slate-secondary uppercase tracking-wider mb-2">Bidang Tujuan <span class="text-red-400">*</span></label>
                     <div class="space-y-1.5">
+                        <label class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer {{ $sendToKepalaBadan ? 'border-sage/30 bg-sage/[0.04]' : 'border-slate-200 bg-white hover:border-slate-300' }}">
+                            <input type="checkbox" wire:model.live="sendToKepalaBadan" class="rounded border-slate-300 text-sage focus:ring-sage">
+                            <span class="text-sm font-bold text-navy">KEPALA BADAN</span>
+                        </label>
                         @foreach($departments as $department)
                         <label class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer {{ in_array($department->id, $departmentIds) ? 'border-sage/30 bg-sage/[0.04]' : 'border-slate-200 bg-white hover:border-slate-300' }}">
                             <input type="checkbox" wire:model.live="departmentIds" value="{{ $department->id }}" class="rounded border-slate-300 text-sage focus:ring-sage">
@@ -212,6 +208,27 @@
                     </div>
                     @error('departmentIds') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                 </div>
+
+                @if($sendToKepalaBadan)
+                <div class="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
+                    <p class="text-sm font-bold text-navy">Kepala Badan</p>
+                    <select wire:model="kepalaBadanInstruction" class="block w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:border-sage focus:ring-sage bg-white font-medium">
+                        <option value="">Pilih instruksi...</option>
+                        <option value="Untuk ditindaklanjuti">Untuk ditindaklanjuti</option>
+                        <option value="Untuk dipahami">Untuk dipahami</option>
+                        <option value="Untuk dipelajari">Untuk dipelajari</option>
+                        <option value="Untuk dijadwalkan rapat">Untuk dijadwalkan rapat</option>
+                        <option value="Untuk dibuatkan tanggapan">Untuk dibuatkan tanggapan</option>
+                        <option value="Untuk dikoordinasikan">Untuk dikoordinasikan</option>
+                        <option value="Untuk diarsipkan">Untuk diarsipkan</option>
+                        <option value="Mohon pendapat dan saran">Mohon pendapat dan saran</option>
+                        <option value="Harap menjadi perhatian">Harap menjadi perhatian</option>
+                    </select>
+                    @error('kepalaBadanInstruction') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                    <textarea wire:model="kepalaBadanNote" rows="2" class="block w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:border-sage focus:ring-sage bg-white placeholder:text-slate-300" placeholder="Catatan tambahan (opsional)..."></textarea>
+                    @error('kepalaBadanNote') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                </div>
+                @endif
 
                 @if(count($departmentIds) > 0)
                 <div class="space-y-3">
@@ -261,8 +278,10 @@
                     Disposisi Baru
                 @elseif($isOperator)
                     Riwayat Disposisi
+                @elseif($isKepalaBadan && $activeTab === 'baru')
+                    Disposisi Baru
                 @elseif($isKepalaBadan)
-                    Disposisi Masuk
+                    Riwayat Disposisi
                 @else
                     Riwayat Disposisi
                 @endif
@@ -306,7 +325,7 @@
                         <th class="py-3 px-4 lg:px-6 text-xs font-bold text-navy uppercase tracking-wider w-1/3">Info Surat</th>
                         <th class="py-3 px-4 lg:px-6 text-xs font-bold text-navy uppercase tracking-wider w-1/4">
                             @if($isKepalaBadan)
-                                Tujuan Disposisi
+                                Dari
                             @else
                                 {{ $isSecretary ? 'Tujuan' : 'Dari' }}
                             @endif
@@ -325,7 +344,14 @@
                     @forelse($dispositions as $disposition)
                     <tr class="hover:bg-slate-50 transition-colors align-top">
                         <td class="py-3 px-4 lg:px-6">
-                            <div class="font-sans text-sm font-bold text-navy">{{ $disposition->document->document_number }}</div>
+                            <div class="font-sans text-sm font-bold text-navy">
+                                {{ $disposition->document->document_number }}
+                                @if($disposition->document->trashed())
+                                <span class="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-50 text-red-700 border border-red-100">
+                                    Dihapus
+                                </span>
+                                @endif
+                            </div>
                             @if($disposition->document->reference_number && $disposition->document->reference_number !== $disposition->document->document_number)
                             <div class="text-[10px] text-slate-400 font-mono mt-0.5 mb-1">Ref: {{ $disposition->document->reference_number }}</div>
                             @endif
@@ -348,7 +374,7 @@
                         </td>
                         <td class="py-3 px-4 lg:px-6 text-sm text-slate-600">{{ $disposition->note ?: '-' }}</td>
                         <td class="py-3 px-4 lg:px-6 min-w-64">
-                            @if(auth()->user()->role === 'operator' && !auth()->user()->isSekretariatOperator() && $disposition->target_role === 'department')
+                            @if((auth()->user()->role === 'operator' && !auth()->user()->isSekretariatOperator() && $disposition->target_role === 'department') || (auth()->user()->role === 'kepala_badan' && $disposition->target_role === 'kepala_badan'))
                             <select wire:model="followUpStatus.{{ $disposition->id }}" class="block w-full mb-2 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:border-sage focus:ring-sage bg-white">
                                 <option value="">Pilih status</option>
                                 <option value="diterima">Diterima</option>

@@ -17,7 +17,7 @@ class Disposition extends Model
 
     public function document()
     {
-        return $this->belongsTo(Document::class);
+        return $this->belongsTo(Document::class)->withTrashed();
     }
 
     public function department()

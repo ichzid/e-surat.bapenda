@@ -132,8 +132,15 @@
                     @forelse($recentItems as $d)
                     <tr class="hover:bg-slate-50/50 transition-colors">
                         <td class="px-5 lg:px-6 py-3.5">
-                            <span class="font-mono text-xs text-navy font-medium">{{ $d->document->document_number ?? '-' }}</span>
-                            @if($d->document->reference_number && $d->document->reference_number !== $d->document->document_number)
+                            <span class="font-mono text-xs text-navy font-medium">
+                                {{ $d->document->document_number ?? '-' }}
+                                @if(isset($d->document) && $d->document->trashed())
+                                <span class="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-50 text-red-700 border border-red-100">
+                                    Dihapus
+                                </span>
+                                @endif
+                            </span>
+                            @if(isset($d->document) && $d->document->reference_number && $d->document->reference_number !== $d->document->document_number)
                             <div class="text-[10px] text-slate-400 font-mono">Ref: {{ $d->document->reference_number }}</div>
                             @endif
                         </td>

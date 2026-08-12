@@ -26,6 +26,8 @@ class Dispositions extends Component
     public $instructions = [];
     public $notes = [];
     public bool $sendToKepalaBadan = false;
+    public $kepalaBadanInstruction = '';
+    public $kepalaBadanNote = '';
 
     // Tindak lanjut operator bidang
     public $followUpStatus = [];
@@ -46,8 +48,8 @@ class Dispositions extends Component
         if ($isOperator && !in_array($this->activeTab, ['baru', 'riwayat'])) {
             $this->activeTab = 'baru';
         }
-        if ($isKepalaBadan) {
-            $this->activeTab = 'riwayat';
+        if ($isKepalaBadan && !in_array($this->activeTab, ['baru', 'riwayat'])) {
+            $this->activeTab = 'baru';
         }
 
         // Tabel surat menunggu disposisi (hanya untuk sekretaris/admin)
@@ -107,9 +109,22 @@ class Dispositions extends Component
                 $this->followUpNote[$disposition->id] ??= $disposition->follow_up_note;
             }
         } else {
+            if ($isKepalaBadan) {
+                $countBaru = Disposition::where('target_role', 'kepala_badan')
+                    ->whereNull('follow_up_status')
+                    ->count();
+            }
+
             $dispositions = Disposition::query()
                 ->with(['document', 'department', 'creator'])
-                ->when($isKepalaBadan, fn ($query) => $query->where('target_role', 'kepala_badan'))
+                ->when($isKepalaBadan, function ($query) {
+                    $query->where('target_role', 'kepala_badan')
+                        ->when(
+                            $this->activeTab === 'baru',
+                            fn ($targetQuery) => $targetQuery->whereNull('follow_up_status'),
+                            fn ($targetQuery) => $targetQuery->whereNotNull('follow_up_status')
+                        );
+                })
                 ->when($this->dispositionSearch, function ($query) {
                     $query->where(function ($q) {
                         $q->where('note', 'like', '%' . $this->dispositionSearch . '%')
@@ -162,7 +177,7 @@ class Dispositions extends Component
     public function closeDispositionModal(): void
     {
         $this->showDispositionModal = false;
-        $this->reset(['selectedDocumentId', 'departmentIds', 'instructions', 'notes']);
+        $this->reset(['selectedDocumentId', 'departmentIds', 'instructions', 'notes', 'sendToKepalaBadan', 'kepalaBadanInstruction', 'kepalaBadanNote']);
     }
 
     public function updatedDepartmentIds(): void
@@ -183,11 +198,13 @@ class Dispositions extends Component
 
         $rules = [
             'selectedDocumentId' => 'required|exists:documents,id',
-            'departmentIds' => 'required|array|min:1',
+            'departmentIds' => $this->sendToKepalaBadan ? 'nullable|array' : 'required|array|min:1',
             'departmentIds.*' => 'exists:departments,id',
             'notes' => 'nullable|array',
             'notes.*' => 'nullable|string',
             'sendToKepalaBadan' => 'boolean',
+            'kepalaBadanInstruction' => $this->sendToKepalaBadan ? 'required|string' : 'nullable|string',
+            'kepalaBadanNote' => 'nullable|string',
         ];
 
         foreach ($this->departmentIds as $departmentId) {
@@ -204,12 +221,15 @@ class Dispositions extends Component
             'instructions.*.required' => 'Instruksi wajib dipilih.',
             'instructions.*.string' => 'Instruksi harus berupa teks.',
             'notes.*.string' => 'Catatan harus berupa teks.',
+            'kepalaBadanInstruction.required' => 'Instruksi untuk Kepala Badan wajib dipilih.',
+            'kepalaBadanInstruction.string' => 'Instruksi untuk Kepala Badan harus berupa teks.',
+            'kepalaBadanNote.string' => 'Catatan untuk Kepala Badan harus berupa teks.',
         ]);
 
         DB::transaction(function () use ($validated) {
             $document = Document::where('type', 'incoming')->findOrFail($validated['selectedDocumentId']);
 
-            foreach ($validated['departmentIds'] as $departmentId) {
+            foreach (($validated['departmentIds'] ?? []) as $departmentId) {
                 $instruction = $validated['instructions'][$departmentId] ?? '';
                 $note = $validated['notes'][$departmentId] ?? '';
                 $dispositionNote = $instruction . ($note ? ' — ' . $note : '');
@@ -231,7 +251,7 @@ class Dispositions extends Component
                     'target_role' => 'kepala_badan',
                 ], [
                     'created_by' => auth()->id(),
-                    'note' => 'Untuk diketahui oleh Kepala Badan.',
+                    'note' => $validated['kepalaBadanInstruction'] . ($validated['kepalaBadanNote'] ? ' — ' . $validated['kepalaBadanNote'] : ''),
                 ]);
             }
 
@@ -248,7 +268,11 @@ class Dispositions extends Component
     public function saveFollowUp($id): void
     {
         $disposition = Disposition::findOrFail($id);
-        abort_unless(auth()->user()->role === 'operator' && $disposition->department_id === auth()->user()->department_id, 403);
+        $user = auth()->user();
+        $canFollowUp = ($user->role === 'operator' && $disposition->target_role === 'department' && $disposition->department_id === $user->department_id)
+            || ($user->role === 'kepala_badan' && $disposition->target_role === 'kepala_badan');
+
+        abort_unless($canFollowUp, 403);
 
         $this->validate([
             "followUpStatus.$id" => 'required|string|max:255',

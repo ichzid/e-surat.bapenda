@@ -107,6 +107,7 @@ class IncomingDocuments extends Component
         $this->showCreateModal = false;
         $this->resetForm();
         $this->dispatch('toast', type: 'success', message: 'Surat Masuk berhasil ditambahkan.');
+        $this->dispatch('refresh-sidebar-badge');
     }
 
     public function edit($id)
@@ -184,10 +185,8 @@ class IncomingDocuments extends Component
         abort_unless($this->canManageIncoming(), 403);
         $document = Document::where('type', 'incoming')->findOrFail($this->deleteId);
 
-        if ($document->file_path && Storage::disk('public')->exists($document->file_path)) {
-            Storage::disk('public')->delete($document->file_path);
-        }
-
+        // Jangan menghapus file fisik ketika soft delete agar riwayat disposisi tidak error.
+        // File hanya dihapus saat forceDelete/destroy permanen.
         $document->delete();
 
         $this->showDeleteModal = false;
